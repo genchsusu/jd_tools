@@ -43,6 +43,7 @@ class JDTools(QWidget):
         self.current_city_id = next(iter(self.city_data))
         self.search_data = search(self.current_city_id)
         self.current_search_id = next(iter(self.search_data))
+        self.areaId_value = ""
         self.initUI()
 
     def initUI(self):
@@ -80,9 +81,6 @@ class JDTools(QWidget):
 
     def initAreaUI(self):
         self.combo1, self.combo2, self.combo3 = QComboBox(), QComboBox(), QComboBox()
-        self.label = QLineEdit()
-        self.label.setReadOnly(True)
-        self.label.setStyleSheet("border: none; background-color: transparent;")
 
         self.set_combo_data(self.combo1, self.province_data, default_key=self.current_province_id)
         self.set_combo_data(self.combo2, self.city_data)
@@ -92,10 +90,9 @@ class JDTools(QWidget):
         self.combo2.currentIndexChanged.connect(self.update_combo3)
         self.combo3.currentIndexChanged.connect(self.update_label)
 
-        self.grid.addWidget(self.combo1, 1, 3)
-        self.grid.addWidget(self.combo2, 1, 4)
-        self.grid.addWidget(self.combo3, 1, 5)
-        self.grid.addWidget(self.label, 1, 6)
+        self.grid.addWidget(self.combo1, 0, 0)
+        self.grid.addWidget(self.combo2, 0, 1)
+        self.grid.addWidget(self.combo3, 0, 2)
 
     def set_combo_data(self, combo, data, default_key=None):
         combo.clear()
@@ -119,7 +116,20 @@ class JDTools(QWidget):
 
     def update_label(self):
         self.current_search_id = self.get_key_from_value(self.search_data, self.combo3.currentText())
-        self.label.setText(f"{self.current_province_id}_{self.current_city_id}_{self.current_search_id}_0")
+        self.areaId_value = f"{self.current_province_id}_{self.current_city_id}_{self.current_search_id}_0"
+        
+        # Check if areaId already exists in the table
+        self.detailTable.setHidden(False)
+        for row in range(self.detailTable.rowCount()):
+            if self.detailTable.item(row, 0).text() == "areaId":
+                self.detailTable.item(row, 1).setText(self.areaId_value)  # Update its value
+                break
+        else:
+            # If areaId is not found in the table, add it
+            current_row = self.detailTable.rowCount()
+            self.detailTable.insertRow(current_row)
+            self.detailTable.setItem(current_row, 0, QTableWidgetItem("areaId"))
+            self.detailTable.setItem(current_row, 1, QTableWidgetItem(self.areaId_value))
 
     @staticmethod
     def get_key_from_value(data, value):
@@ -138,6 +148,11 @@ class JDTools(QWidget):
             for row, (key, value) in enumerate(result.items()):
                 self.detailTable.setItem(row, 0, QTableWidgetItem(str(key)))
                 self.detailTable.setItem(row, 1, QTableWidgetItem(str(value)))
+            if self.areaId_value:
+                current_row = self.detailTable.rowCount()
+                self.detailTable.insertRow(current_row)
+                self.detailTable.setItem(current_row, 0, QTableWidgetItem("areaId"))
+                self.detailTable.setItem(current_row, 1, QTableWidgetItem(self.areaId_value))
             self.detailTable.setFixedHeight(self.detailTable.verticalHeader().length() + self.detailTable.horizontalHeader().height() + self.detailTable.rowHeight(0) * self.detailTable.rowCount())
             self.detailTable.setHidden(False)
 

@@ -1,6 +1,6 @@
 # JD Tool
 
-本项目主要用于查询京东（JD）产品的`cat`, `shopId`, `skuId`, `venderId`, `AreaId`。
+本项目主要用于查询京东（JD）产品的`cat`, `shopId`, `skuId`, `venderId`, `areaId`。
 
 ## 预览
 
